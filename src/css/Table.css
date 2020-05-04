@@ -1,0 +1,65 @@
+
+.table-wrapper {
+    margin: 0 auto;
+    padding-right: 20%;
+    padding-left: 20%;
+    background-color: rgb(24, 61, 104);
+}
+
+.companies {
+    text-align: center;
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    font-size: 16px;
+    border: 3px solid rgb(107, 107, 107);
+    width: 100%;
+}
+
+.companies td, .companies th {
+    /* border: 1px solid rgb(161, 159, 159); */
+    border-top: 1px solid rgb(161, 159, 159);
+    border-bottom: 1px solid rgb(161, 159, 159);
+    padding: 8px;
+}
+
+.companies tr:nth-child(even){
+    background-color: #f2f2f2;
+}
+
+.companies tr:hover {
+    background-color: #ddd;
+}
+
+.companies th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: center;
+  background-color: rgb(216, 216, 216);
+  color: rgb(46, 102, 221);
+}
+
+#link {
+    background-color: transparent;
+    border: 0;
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    font-size: 16px;
+    color: black;
+    text-decoration: none;
+}
+
+#link:hover{
+    color: blue;
+}
+
+#positive{
+    color: green;
+}
+
+#negative {
+    color:  red;
+}
+
+#neutral {
+    color: black;
+}
+
