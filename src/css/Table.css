@@ -3,7 +3,7 @@
     margin: 0 auto;
     padding-right: 20%;
     padding-left: 20%;
-    background-color: rgb(24, 61, 104);
+    background-color: rgb(63, 76, 90);
 }
 
 .companies {
@@ -16,7 +16,6 @@
 }
 
 .companies td, .companies th {
-    /* border: 1px solid rgb(161, 159, 159); */
     border-top: 1px solid rgb(161, 159, 159);
     border-bottom: 1px solid rgb(161, 159, 159);
     padding: 8px;
@@ -34,8 +33,14 @@
   padding-top: 12px;
   padding-bottom: 12px;
   text-align: center;
-  background-color: rgb(216, 216, 216);
-  color: rgb(46, 102, 221);
+  /* background-color: rgb(216, 216, 216);
+  color: rgb(46, 102, 221); */
+  background-color: rgb(25, 53, 114);
+  color: rgb(255, 255, 255);
+}
+
+.companies th:hover{
+    color: rgb(191, 211, 252);
 }
 
 #link {
@@ -63,3 +68,12 @@
     color: black;
 }
 
+#error {
+    color: rgb(241, 21, 21);
+    font-size: 40px;
+}
+
+#loading {
+    color: white;
+    font-size: 40px;
+}

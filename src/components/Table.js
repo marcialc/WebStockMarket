@@ -1,18 +1,24 @@
 import React, { Component } from "react";
 import '../css/Table.css';
 
+
 export default class Table extends Component {
 
   constructor(props){
     super(props);
     this.state = {
         companies: [ ],
+        update: [ ],
+        sortType: 'asc',
+        error: null,
+        isLoaded: false,
     };
   }
 
   intervalID; 
 
   componentDidMount(){
+    this.getPriceData()
     this.getData()
   }
 
@@ -20,114 +26,179 @@ export default class Table extends Component {
     clearTimeout(this.intervalID);
   }
 
+  //Fetching the Data from the spring api
   getData = () => {
     fetch("http://localhost:8080/api/company")
     .then(res => res.json())
-    .then(data => {
-      this.setState({ companies: data })
-      this.intervalID = setTimeout(this.getData.bind(this), 3000);
-    });
+    .then(
+      (data) => {
+      this.setState({ 
+        isLoaded: true,
+        companies: data,
+        update: data
+      })
+    },
+    (error) => {
+      this.setState({
+        isLoaded: true,
+        error
+      });
+    }
+    );
   }
 
-  //An idea had to write
-  renderTableData() {
-    return this.state.companies.map((companies) => {
-      var { id, name, acronym, price, change, chg, link } =  companies
-
-      var changeStat = "neutral"
-      chg = chg+"%"
-
-      if(change !== 0)
-      {
-        changeStat = change < 0 ? "negative" : "positive"
-        change = change < 0 ? change : "+"+change
-        chg = change < 0 ? chg+"%"+" ↓" : chg+"%"+" ↑"
+  //Updating the array update to only update the price in companies
+  getPriceData = () => {
+    fetch("http://localhost:8080/api/company")
+    .then(res => res.json())
+    .then(
+      (data) => {
+        this.setState({ 
+          isLoaded: true,
+          update: data
+        })
+      },
+      (error) => {
+        this.setState({
+          isLoaded: true,
+          error
+        });
       }
-     
-      return (
-        <tr key={id}>
-             <td>{acronym}</td>
-             <td>
-               <a href={link} target="_blank" rel="noopener noreferrer" id="link"> 
-                {name} 
-               </a>
-             </td>
-             <td>{price}</td>
-             <td id={changeStat}>{change}</td>
-             <td id={changeStat}>{chg}</td>
-        </tr>
-      ) 
-    })
+    );
+    this.intervalID = setTimeout(this.getPriceData.bind(this), 3000);
   }
 
+  sortTable(props) {
+
+    var type = this.state.sortType;
+    var x, y;
+
+    const sortedCompanies = this.state.companies;
+    sortedCompanies.sort((a,b) => {
+
+      if(props === 'name'){
+        x = a.name
+        y = b.name
+      }else if( props === 'price'){
+        x = a.price
+        y = b.price
+      }else if( props === 'change'){
+        x = a.change
+        y = b.change
+      }else if( props === 'chg'){
+        x = a.chg
+        y = b.chg
+      }
+      
+      if(type === 'asc'){
+        if(x < y) { return -1; }
+        if(x > y) { return 1; }
+        return 0;
+      }else if(type === 'desc'){
+        if(x > y) { return -1; }
+        if(x < y) { return 1; }
+        return 0;
+      }
+    });
+
+    type = type === 'asc'? 'desc': 'asc';
+    this.setState({ sortType: type});
+    this.setState({ companies: sortedCompanies });
+  }
+
+  //resets the table to the original order
+  resetTable(){
+    this.setState({ companies : this.state.update })
+    this.setState({ sortType: 'asc'})
+  }
+
+  //Displays Table Header
   renderTableHeader() {
     return (
       <tr>
-        <th></th>
-        <th>Company Name</th>
-        <th>Price</th>
-        <th>Change</th>
-        <th>Chg %</th>
+        <th onClick={() => this.resetTable()}></th>
+        <th onClick={() => this.sortTable('name')}>Company Name</th>
+        <th onClick={() => this.sortTable('price')}>Price (USD)</th>
+        <th onClick={() => this.sortTable('change')}>Change</th>
+        <th onClick={() => this.sortTable('chg')}>Chg %</th>
       </tr>
     )
   }
 
-render() {
+  //Displays Table Data and creates the CHANGE and CHG
+  renderTableData() {
+    return this.state.companies.map((companies) => {
 
-  var companies = this.state.companies;
+      //checks if the price has change to update the table
+      var index = this.state.update.map(function(e) { 
+          return e.name; 
+        }).indexOf(companies.name); 
 
-  return (
-    <div className="table-wrapper">
-      <div style={{ backgroundColor: "white"}}>
-        <table className='companies'>   
-          <thead>
-            <tr>
-              <th></th>
-              <th>Company Name</th>
-              <th>Price</th>
-              <th>Change</th>
-              <th >Chg %</th>
-            </tr>
-          </thead>
-          <tbody>                   
-            {companies.map((companies) => {
-              var changeStatus = 'neutral';
-              var change = 0;
-              var chg = 0;
+      if(companies.price !== this.state.update[index].price){
+        companies.price = this.state.update[index].price
+      }
+        
+    
 
-              if(companies.price < companies.todayPrice) {
-                changeStatus = 'negative';
-                change = '-'+(companies.todayPrice - companies.price);
-                chg = Math.round(100*((change/companies.todayPrice) * 100))/100+'% '+' ↓';
+      //If price has changed the change and chg should be 0 and neutral
+      var changeStatus = 'neutral';
+      var change = Math.round(100*(companies.price - companies.todayPrice))/100;
+      var chg = 0;
 
-              }
-              else if(companies.price > companies.todayPrice) {
-                changeStatus = 'positive';
-                change = '+'+(companies.price - companies.todayPrice);
-                chg = Math.round(100*((change/companies.todayPrice) * 100))/100+'% '+' ↑';
-              }
+      //Checking if price has change to the start of todays price, to update the change and chg
+      if(companies.price < companies.todayPrice) {
+        changeStatus = 'negative';
+        chg = Math.round(100*((change/companies.todayPrice) * 100))/100+'% '+' ↓';
 
-              return (
-                <tr key={companies.id}>
-                  <td>{companies.acronym}</td>
-                  <td>
-                    <a href={companies.link} target="_blank" rel="noopener noreferrer" id="link"> 
-                      {companies.name} 
-                    </a>
-                  </td>
-                  <td>{companies.price}</td>
-                  <td id={changeStatus}>{Math.round(100*change)/100}</td>
-                  <td 
-                    id={changeStatus} 
-                    style={{textAlign:"right", paddingRight:"30px", paddingLeft:"0", width:"120px"}}
-                  >{chg}</td>
-              </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-}
+      }
+      else if(companies.price > companies.todayPrice) {
+        changeStatus = 'positive';
+        chg = Math.round(100*((change/companies.todayPrice) * 100))/100+'% '+' ↑';
+      }
+
+      return (
+        <tr key={companies.id}>
+          <td>{companies.acronym}</td>
+          <td>
+            <a href={companies.link} target="_blank" rel="noopener noreferrer" id="link"> 
+              {companies.name} 
+            </a>
+          </td>
+          <td>{companies.price}</td>
+          <td id={changeStatus}>{change}</td>
+          <td 
+            id={changeStatus} 
+            //Added style to align the arrows
+            style={{textAlign:"right", paddingRight:"30px", paddingLeft:"0", width:"120px"}}
+          >{chg}</td>
+      </tr>
+      );
+    })
+  }
+
+  render() {
+
+    const{ error, isLoaded } = this.state;
+    
+    if (error) {
+      return <div id="error">Error: {error.message}</div>;
+    } else if (!isLoaded) {
+      return <div id="loading">Loading...</div>;
+    } else {
+      return (
+        <div className="table-wrapper">
+          <div style={{ backgroundColor: "white"}}>
+            <table className='companies'>   
+              <thead>
+                {this.renderTableHeader()}
+              </thead>
+              <tbody>                   
+                {this.renderTableData()}
+              </tbody>
+            </table>            
+          </div>
+        </div>
+      );
+    }
+  }
 }

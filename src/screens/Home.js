@@ -8,9 +8,7 @@ export default class Home extends Component {
   render() {
     return (
       <div className="home-wrapper">
-        <p className="home-title">
-          Web Stock Market
-        </p>
+        <p className="home-title"> Web Stock Market </p>
         <Clock />
         <Table />
       </div>

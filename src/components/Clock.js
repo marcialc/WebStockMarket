@@ -5,7 +5,7 @@ export default class Clock extends Component {
     constructor(props) {
         super(props);
         this.state = {
-          time: new Date().toLocaleString()
+          day: new Date().toLocaleString(),
         };
       }
 
@@ -21,14 +21,14 @@ export default class Clock extends Component {
 
       tick() {
         this.setState({
-          time: new Date().toLocaleString()
+          day: new Date().toLocaleString(),
         });
       }
 
       render() {
         return (
           <p className="clock">
-            {this.state.time}.
+            {this.state.day}
           </p>
         );
       }
