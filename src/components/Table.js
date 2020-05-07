@@ -70,8 +70,8 @@ export default class Table extends Component {
 
   sortTable(props) {
 
-    var type = this.state.sortType;
-    var x, y;
+    let type = this.state.sortType;
+    let x, y;
 
     const sortedCompanies = this.state.companies;
     sortedCompanies.sort((a,b) => {
@@ -79,13 +79,13 @@ export default class Table extends Component {
       if(props === 'name'){
         x = a.name
         y = b.name
-      }else if( props === 'price'){
+      } else if( props === 'price'){
         x = a.price
         y = b.price
-      }else if( props === 'change'){
+      } else if( props === 'change'){
         x = a.change
         y = b.change
-      }else if( props === 'chg'){
+      } else if( props === 'chg'){
         x = a.chg
         y = b.chg
       }
@@ -102,14 +102,12 @@ export default class Table extends Component {
     });
 
     type = type === 'asc'? 'desc': 'asc';
-    this.setState({ sortType: type});
-    this.setState({ companies: sortedCompanies });
+    this.setState({ sortType: type, companies: sortedCompanies});
   }
 
   //resets the table to the original order
   resetTable(){
-    this.setState({ companies : this.state.update })
-    this.setState({ sortType: 'asc'})
+    this.setState({ companies : this.state.update, sortType: 'asc' })
   }
 
   //Displays Table Header
@@ -130,26 +128,23 @@ export default class Table extends Component {
     return this.state.companies.map((companies) => {
 
       //checks if the price has change to update the table
-      var index = this.state.update.map(function(e) { 
+      let index = this.state.update.map(function(e) { 
           return e.name; 
         }).indexOf(companies.name); 
 
       if(companies.price !== this.state.update[index].price){
         companies.price = this.state.update[index].price
       }
-        
-    
 
       //If price has changed the change and chg should be 0 and neutral
-      var changeStatus = 'neutral';
-      var change = Math.round(100*(companies.price - companies.todayPrice))/100;
-      var chg = 0;
+      let changeStatus = 'neutral';
+      let change = Math.round(100*(companies.price - companies.todayPrice))/100;
+      let chg = 0;
 
       //Checking if price has change to the start of todays price, to update the change and chg
       if(companies.price < companies.todayPrice) {
         changeStatus = 'negative';
         chg = Math.round(100*((change/companies.todayPrice) * 100))/100+'% '+' ↓';
-
       }
       else if(companies.price > companies.todayPrice) {
         changeStatus = 'positive';
